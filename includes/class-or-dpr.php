@@ -115,6 +115,8 @@ class ORDPR {
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-or-dpr-admin.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-or-dpr-product.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-or-dpr-release.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -151,6 +153,15 @@ class ORDPR {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
+
+		$product = new ORDPR\Admin\Product( $this->plugin_name, $this->version );
+
+		$this->loader->add_action( 'init',		$product, 'register_post_type', 10);
+		$this->loader->add_action( 'init',		$product, 'register_taxonomy', 	10);
+
+		$release = new ORDPR\Admin\Release( $this->plugin_name, $this->version );
+
+		$this->loader->add_action( 'init',		$release, 'register_post_type', 10);
 
 	}
 

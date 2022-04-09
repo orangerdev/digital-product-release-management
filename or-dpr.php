@@ -42,6 +42,7 @@ define( 'ORDPR_URL', 			plugin_dir_url( __FILE__ ) );
 
 define( 'ORDPR_PRODUCT_CPT',	'ordpr-product');
 define( 'ORDPR_RELEASE_CPT',	'ordpr-release');
+define( 'ORDPR_PRODUCT_TAG_CT',	'ordpr-product-tag');
 
 if( file_exists( ORDPR_DIR . 'vendor/autoload.php' ) ) {
 	require_once( ORDPR_DIR . 'vendor/autoload.php' );
