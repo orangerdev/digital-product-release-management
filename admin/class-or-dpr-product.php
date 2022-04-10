@@ -46,6 +46,14 @@ class Product {
 	private $version;
 
 	/**
+	 * Array of release version
+	 *
+	 * @since	1.0.0
+	 * @var 	array
+	 */
+	protected $release_version = array();
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -147,6 +155,104 @@ class Product {
 
         register_taxonomy( ORDPR_PRODUCT_TAG_CT, array( ORDPR_PRODUCT_CPT ), $args );
     }
+
+	/**
+	 * Modify post table
+	 * Hooked via filter manage_ordpr-product_posts_columns, priority 10
+	 * @since 	1.0.0
+	 * @param 	array 	$columns
+	 * @return 	array
+	 */
+	public function modify_custom_columns( array $columns ) {
+
+		unset($columns['date']);
+
+		$position = 2;
+
+		$columns = array_merge(
+			array_slice($columns, 0, $position),
+			array(
+				'version'  => __('Version', 'or-dpr'),
+				'download' => __('Download', 'or-dpr'),
+			),
+			array_slice($columns, $position)
+		);
+
+		return $columns;
+	}
+
+	/**
+	 * Get release data
+	 * @since 	1.0.0
+	 * @param  	integer $post_id
+	 * @return 	array
+	 */
+	protected function get_release_data( $post_id ) {
+
+		if(!array_key_exists($post_id, $this->release_version)) :
+
+			$query = new \WP_Query([
+									'post_type'      => ORDPR_RELEASE_CPT,
+									'post_parent'    => $post_id,
+									'posts_per_page' => 1
+								   ]);
+
+			$data =  array(
+				'version'	=> '-',
+				'download'	=> array(
+					'date'	=> array(),
+					'all'	=> 0
+				)
+			);
+
+			if(0 < count($query->posts)) :
+
+				$release_version = $query->posts[0];
+
+				$data['version']  = $release_version->post_title;
+				$data['download'] = apply_filters('ordpr/release/get-download-data', array(), $release_version->ID);
+			endif;
+
+			$this->release_version[$post_id] = $data;
+
+		endif;
+
+		return $this->release_version[$post_id];
+	}
+
+	/**
+	 * Display value based on column table
+	 * Hooked via filter manage_ordpr-product_posts_custom_column, priority 10
+	 * @since 	1.0.0
+	 * @param  	string 	$column
+	 * @param  	integer $post_id
+	 * @return 	void
+	 */
+	public function display_column_value( $column, $post_id ) {
+
+		$release_data = $this->get_release_data($post_id);
+
+		switch( $column ) :
+
+			case 'version' :
+				echo '<code>' . $release_data['version'] . '</code>';
+				break;
+
+			case 'download'	:
+				?>
+				<div>
+					<label>Total</label>
+					<span><code><?= $release_data['download']['all']; ?></code></span>
+				</div>
+				<div>
+					<label>30-day</label>
+					<span><code>127</code></span>
+				</div>
+				<?php
+				break;
+
+		endswitch;
+	}
 
 	/**
 	 * Register carbonfields

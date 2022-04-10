@@ -160,14 +160,18 @@ class ORDPR {
 
 		$product = new ORDPR\Admin\Product( $this->plugin_name, $this->version );
 
-		$this->loader->add_action( 'init',							$product, 'register_post_type', 	10);
-		$this->loader->add_action( 'init',							$product, 'register_taxonomy', 		10);
-		$this->loader->add_action( 'carbon_fields_register_fields',	$product, 'register_carbon_fields', 10);
+		$this->loader->add_action( 'init',												$product, 'register_post_type', 	10);
+		$this->loader->add_action( 'init',												$product, 'register_taxonomy', 		10);
+		$this->loader->add_action( 'carbon_fields_register_fields',						$product, 'register_carbon_fields', 10);
+		$this->loader->add_filter( 'manage_' . ORDPR_PRODUCT_CPT . '_posts_columns',		$product, 'modify_custom_columns',	10);
+		$this->loader->add_action( 'manage_' . ORDPR_PRODUCT_CPT . '_posts_custom_column',	$product, 'display_column_value',	10, 2);
 
 		$release = new ORDPR\Admin\Release( $this->plugin_name, $this->version );
 
-		$this->loader->add_action( 'init',							$release, 'register_post_type', 	10);
-		$this->loader->add_action( 'carbon_fields_register_fields',	$release, 'register_carbon_fields', 10);
+		$this->loader->add_action( 'init',								$release, 'register_post_type', 	10);
+		$this->loader->add_action( 'carbon_fields_register_fields',		$release, 'register_carbon_fields', 10);
+		$this->loader->add_filter( 'wp_insert_post_data',				$release, 'set_parent_page',		10, 2);
+		$this->loader->add_filter( 'ordpr/release/get-download-data',	$release, 'get_download_data',		99, 2);
 
 	}
 

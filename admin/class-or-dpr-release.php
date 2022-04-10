@@ -165,4 +165,61 @@ class Release {
 			]);
 
 	}
+
+	/**
+	 * Set parent page
+	 * Hooked via filter wp_inser_post_data, priority 10
+	 * @since 	1.0.0
+	 * @param 	array $data
+	 * @param 	array $post_args
+	 * @return 	array
+	 */
+	public function set_parent_page( array $data, array $post_args) {
+
+		global $post;
+
+		if( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+			return $data;
+
+		if(
+			ORDPR_RELEASE_CPT === $post->post_type &&
+			isset($_POST['carbon_fields_compact_input']) &&
+			isset($_POST['carbon_fields_compact_input']['_product'])
+		) :
+
+			$product_id          = absint($_POST['carbon_fields_compact_input']['_product']);
+			$data['post_parent'] = $product_id;
+
+		endif;
+
+		return $data;
+	}
+
+	/**
+	 * Get download release data
+	 * Hooked via filter ordpr/release/get-download-data, priority 99
+	 * @since 	1.0.0
+	 * @param  	int|WP_Post 	$release
+	 * @return 	array
+	 */
+	public function get_download_data( $download = array(), $release ) {
+
+		$download =  array(
+			'date'	=> array(),
+			'all'	=> 0
+		);
+
+		if(!is_a($release, 'WP_Post')) :
+
+			$release = get_post($release);
+
+		endif;
+
+		$download = wp_parse_args(
+						(array) get_post_meta( $release->ID, 'download_statistic', true),
+						$download
+					);
+
+		return $download;
+	}
 }
