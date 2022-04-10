@@ -56,4 +56,16 @@ class Admin {
 
 	}
 
+	/**
+	 * Load carbonfields
+	 * Hooked via action after_setup_theme, priority 10
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function load_carbon_fields() {
+
+		\Carbon_Fields\Carbon_Fields::boot();
+		
+	}
+
 }

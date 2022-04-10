@@ -2,6 +2,9 @@
 
 namespace ORDPR\Admin;
 
+use Carbon_Fields\Container;
+use Carbon_Fields\Field;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -79,7 +82,7 @@ class Product {
             'parent_item_colon'     => __( 'Parent Release Products:', 'or-dpr' ),
             'not_found'             => __( 'No release-products found.', 'or-dpr' ),
             'not_found_in_trash'    => __( 'No release-products found in Trash.', 'or-dpr' ),
-            'featured_image'        => _x( 'Release Product Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'or-dpr' ),
+            'featured_image'        => _x( 'Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'or-dpr' ),
             'set_featured_image'    => _x( 'Set cover image', 'Overrides the “Set featured image” phrase for this post type. Added in 4.3', 'or-dpr' ),
             'remove_featured_image' => _x( 'Remove cover image', 'Overrides the “Remove featured image” phrase for this post type. Added in 4.3', 'or-dpr' ),
             'use_featured_image'    => _x( 'Use as cover image', 'Overrides the “Use as featured image” phrase for this post type. Added in 4.3', 'or-dpr' ),
@@ -144,5 +147,21 @@ class Product {
 
         register_taxonomy( ORDPR_PRODUCT_TAG_CT, array( ORDPR_PRODUCT_CPT ), $args );
     }
+
+	/**
+	 * Register carbonfields
+	 * Hooked via action carbon_fields_register_fields, priority 10
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function register_carbon_fields() {
+
+		Container::make('post_meta', __('Setting', 'or-dpr'))
+			->where('post_type', '=', ORDPR_PRODUCT_CPT)
+			->add_fields([
+				Field::make('media_gallery',	'gallery',	__('Gallery', 'or-dpr')),
+			]);
+
+	}
 
 }

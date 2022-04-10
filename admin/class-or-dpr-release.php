@@ -2,6 +2,9 @@
 
 namespace ORDPR\Admin;
 
+use Carbon_Fields\Container;
+use Carbon_Fields\Field;
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -56,6 +59,31 @@ class Release {
 
 	}
 
+	/**
+	 * Get product as options
+	 * @since 	1.0.0
+	 * @return 	array
+	 */
+	public function get_product_options() {
+
+		$options = array(
+			''	=> __('No product', 'or-dpr')
+		);
+
+		$query = new \WP_Query(array(
+			'post_type'      => ORDPR_PRODUCT_CPT,
+			'posts_per_page' => -1,
+			'orderby'        => 'title',
+			'order'          => 'ASC'
+		));
+
+		foreach($query->posts as $post) :
+			$options[$post->ID] = $post->post_title . ' #'.$post->ID;
+		endforeach;
+
+		return $options;
+	}
+
     /**
      * Register custom version type
      * Hooked via action init, priority 10
@@ -79,7 +107,7 @@ class Release {
             'parent_item_colon'     => __( 'Parent Release Versions:', 'or-dpr' ),
             'not_found'             => __( 'No release-versions found.', 'or-dpr' ),
             'not_found_in_trash'    => __( 'No release-versions found in Trash.', 'or-dpr' ),
-            'featured_image'        => _x( 'Release Version Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'or-dpr' ),
+            'featured_image'        => _x( 'Cover Image', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'or-dpr' ),
             'set_featured_image'    => _x( 'Set cover image', 'Overrides the “Set featured image” phrase for this post type. Added in 4.3', 'or-dpr' ),
             'remove_featured_image' => _x( 'Remove cover image', 'Overrides the “Remove featured image” phrase for this post type. Added in 4.3', 'or-dpr' ),
             'use_featured_image'    => _x( 'Use as cover image', 'Overrides the “Use as featured image” phrase for this post type. Added in 4.3', 'or-dpr' ),
@@ -94,7 +122,7 @@ class Release {
         $args = array(
             'labels'             => $labels,
             'public'             => true,
-            'publicly_queryable' => true,
+            'publicly_queryable' => false,
 			'exclude_form_search'=> true,
             'show_ui'            => true,
             'show_in_menu'       => true,
@@ -112,4 +140,29 @@ class Release {
 
     }
 
+	/**
+	 * Register carbonfields
+	 * Hooked via action carbon_fields_register_fields, priority 10
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function register_carbon_fields() {
+
+		Container::make('post_meta', __('Setting', 'or-dpr'))
+			->where('post_type', '=', ORDPR_RELEASE_CPT)
+			->add_fields([
+				Field::make('select',	'product',			__('Product', 'or-dpr'))
+					->add_options(array($this, 'get_product_options'))
+					->set_required(true),
+
+				Field::make('date',		'release_date',		__('Release Date', 'or-dpr'))
+					->set_required(true),
+
+				Field::make('file', 	'download_file', 	__('File', 'or-dpr'))
+					->set_required(true),
+
+				Field::make('media_gallery',	'gallery',	__('Gallery', 'or-dpr')),
+			]);
+
+	}
 }
