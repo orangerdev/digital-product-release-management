@@ -222,4 +222,50 @@ class Release {
 
 		return $download;
 	}
+
+	/**
+	 * Modify post table
+	 * Hooked via filter manage_ordpr-release_posts_columns, priority 10
+	 * @since 	1.0.0
+	 * @param 	array 	$columns
+	 * @return 	array
+	 */
+	public function modify_custom_columns( array $columns ) {
+
+		unset($columns['date']);
+
+		$position = 1;
+
+		$columns = array_merge(
+			array_slice($columns, 0, $position),
+			array(
+				'ordpr-product'  => __('Product', 'or-dpr'),
+			),
+			array_slice($columns, $position)
+		);
+
+		return $columns;
+	}
+
+	/**
+	 * Display value based on column table
+	 * Hooked via filter manage_ordpr-release_posts_custom_column, priority 10
+	 * @since 	1.0.0
+	 * @param  	string 	$column
+	 * @param  	integer $post_id
+	 * @return 	void
+	 */
+	public function display_column_value( $column, $post_id ) {
+
+		global $post;
+
+		switch( $column ) :
+
+			case 'ordpr-product' :
+				$product = get_post($post->post_parent);
+				echo $product->post_title;
+				break;
+
+		endswitch;
+	}
 }

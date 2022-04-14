@@ -172,6 +172,8 @@ class ORDPR {
 		$this->loader->add_action( 'carbon_fields_register_fields',		$release, 'register_carbon_fields', 10);
 		$this->loader->add_filter( 'wp_insert_post_data',				$release, 'set_parent_page',		10, 2);
 		$this->loader->add_filter( 'ordpr/release/get-download-data',	$release, 'get_download_data',		99, 2);
+		$this->loader->add_filter( 'manage_' . ORDPR_RELEASE_CPT . '_posts_columns',		$release, 'modify_custom_columns',	10);
+		$this->loader->add_action( 'manage_' . ORDPR_RELEASE_CPT . '_posts_custom_column',	$release, 'display_column_value',	10, 2);
 
 	}
 
